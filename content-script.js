@@ -31,27 +31,50 @@ const getViews = () => {
   return views;
 };
 
+/**
+ * For the provided DOM element, find a text node in its subtree that contains
+ * text.
+ *
+ * @param {*} el
+ * @returns
+ */
+const getElementToInsertInto = el => {
+  const childNodes = [...el.childNodes];
+  for (let node of childNodes) {
+    const isTextNode = node.nodeType === Node.TEXT_NODE;
+    if (isTextNode) {
+      const hasText = node.textContent.trim();
+      if (hasText) {
+        return node;
+      }
+    }
+    const elementToInsertInto = getElementToInsertInto(node);
+    if (elementToInsertInto !== null) {
+      return elementToInsertInto;
+    }
+  }
+  return null;
+}
+
 const displayLikeRate = () => {
   let infoEl, likes, views;
   const intervalId = setInterval(() => {
-    infoEl = document.querySelector('#above-the-fold #info');
-    if (!infoEl) {
+    const el = getElementToInsertInto(document.querySelector('#above-the-fold #title'));
+    if (!el) {
       return;
     }
     try {
       likes = getLikes();
-    } catch(e) {
+    } catch (e) {
       return;
     }
     try {
       views = getViews();
-    } catch(e) {
+    } catch (e) {
       return;
     }
-    const span = document.createElement('span');
     const rate = Math.round(getLikes() / getViews() * 1000) / 10;
-    span.innerHTML = `Like rate: ${rate}%`;
-    infoEl.after(span);
+    el.nodeValue = el.nodeValue + ` | Like rate: ${rate}%`;
     clearInterval(intervalId);
   }, 300);
 };
