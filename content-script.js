@@ -57,20 +57,30 @@ const getElementToInsertInto = el => {
 }
 
 const displayLikeRate = () => {
-  let infoEl, likes, views;
+  let likes, views, attempts;
   const intervalId = setInterval(() => {
     const el = getElementToInsertInto(document.querySelector('#above-the-fold #title'));
     if (!el) {
+      console.log('no element');
+      return;
+    }
+    if (el.nodeValue.indexOf('Like rate:') !== -1) {
+      if (attempts === 5) {
+        clearInterval(intervalId);
+      }
+      attempts += 1;
       return;
     }
     try {
       likes = getLikes();
     } catch (e) {
+      console.log('error!');
       return;
     }
     try {
       views = getViews();
     } catch (e) {
+      console.log('error!!');
       return;
     }
     const rate = Math.round(getLikes() / getViews() * 1000) / 10;
@@ -80,3 +90,5 @@ const displayLikeRate = () => {
 };
 
 displayLikeRate();
+
+document.addEventListener('yt-navigate-finish', displayLikeRate);
