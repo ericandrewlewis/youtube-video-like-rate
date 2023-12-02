@@ -14,7 +14,7 @@ const getViews = () => {
   if (found === null) {
     throw new Error('Views DOM element not found');
   }
-  const displayedNumber = found[1];
+  let displayedNumber = found[1];
   let views;
   if (displayedNumber[displayedNumber.length - 1] === 'K') {
     const a = parseFloat(displayedNumber.substring(0, displayedNumber.length - 1));
@@ -26,8 +26,10 @@ const getViews = () => {
     const a = parseFloat(displayedNumber.substring(0, displayedNumber.length - 1));
     views = a * 1000000000;
   } else {
+    displayedNumber = displayedNumber.replaceAll(',', '');
     views = parseInt(displayedNumber);
   }
+  
   return views;
 };
 
@@ -39,6 +41,9 @@ const getViews = () => {
  * @returns
  */
 const getElementToInsertInto = el => {
+  if (el === null) {
+    return null;
+  }
   const childNodes = [...el.childNodes];
   for (let node of childNodes) {
     const isTextNode = node.nodeType === Node.TEXT_NODE;
@@ -74,13 +79,13 @@ const displayLikeRate = () => {
     try {
       likes = getLikes();
     } catch (e) {
-      console.log('error!');
+      console.log('error: ', e);
       return;
     }
     try {
       views = getViews();
     } catch (e) {
-      console.log('error!!');
+      console.log('error: ', e);
       return;
     }
     const rate = Math.round(getLikes() / getViews() * 1000) / 10;
